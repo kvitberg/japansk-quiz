@@ -16,11 +16,14 @@
     } catch (e) { /* fortsett uten lagring */ }
   }
 
+  const ROUND_LENGTH = 10;
+
   const boxes = loadBoxes();
   let lastKey = null;
   let current = null;
   let selected = null;
   let phase = "choose"; // "choose" | "feedback"
+  let roundProgress = 0; // riktige svar denne runden, 0..ROUND_LENGTH
 
   const els = {
     progress: document.getElementById("progress"),
@@ -51,7 +54,7 @@
   function renderProgress() {
     const mastered = QuizLogic.masteredCount(VERBS, boxes);
     els.progress.textContent = mastered + " av " + VERBS.length + " verb mestret";
-    els.progressBar.style.width = (100 * mastered / VERBS.length) + "%";
+    els.progressBar.style.width = (100 * roundProgress / ROUND_LENGTH) + "%";
   }
 
   function select(index) {
@@ -77,6 +80,7 @@
       if (current.options[i] === current.verb) btn.classList.add("reveal-correct");
       else if (i === selected) btn.classList.add("reveal-wrong");
     });
+    if (correct) roundProgress++;
     els.footer.classList.add(correct ? "good" : "bad");
     els.feedbackTitle.textContent = correct ? "Riktig!" : "Feil!";
     els.feedbackText.textContent = correct ? "" : "Riktig svar: " + current.verb.no;
@@ -87,6 +91,10 @@
   }
 
   function nextQuestion() {
+    if (roundProgress >= ROUND_LENGTH) {
+      roundProgress = 0;
+      renderProgress();
+    }
     const verb = QuizLogic.pickNextVerb(VERBS, boxes, lastKey, Math.random);
     current = { verb, options: QuizLogic.buildOptions(VERBS, verb, Math.random) };
     selected = null;

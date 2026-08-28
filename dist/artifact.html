@@ -25,6 +25,7 @@
   --reveal-correct-border: #a5ed6e;
   --reveal-wrong-bg: #ffdfe0;
   --reveal-wrong-border: #ff4b4b;
+  --purple: #ce82ff;
   --track: #e5e5e5;
 }
 @media (prefers-color-scheme: dark) {
@@ -51,6 +52,7 @@
     --reveal-correct-border: #58a700;
     --reveal-wrong-bg: #3f2022;
     --reveal-wrong-border: #ff5b5b;
+    --purple: #ce82ff;
     --track: #37464f;
   }
 }
@@ -77,6 +79,7 @@
   --reveal-correct-border: #58a700;
   --reveal-wrong-bg: #3f2022;
   --reveal-wrong-border: #ff5b5b;
+  --purple: #ce82ff;
   --track: #37464f;
 }
 body {
@@ -126,8 +129,12 @@ body {
   margin: 32px 0 8px;
   font-size: 1.6rem;
   font-weight: 900;
-  color: var(--heading);
+  color: var(--purple);
   text-wrap: balance;
+}
+.heading .star {
+  font-size: 1.3rem;
+  margin-right: 4px;
 }
 .prompt {
   font-size: 2.5rem;
@@ -264,7 +271,7 @@ body {
     <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
     <div id="progress" class="progress-text"></div>
   </header>
-  <h1 class="heading">Velg riktig betydning</h1>
+  <h1 class="heading"><span class="star">✦</span> Velg riktig betydning</h1>
   <div id="prompt" class="prompt" lang="ja"></div>
   <div id="options" class="options"></div>
 </main>
@@ -427,11 +434,14 @@ if (typeof module !== "undefined") module.exports = QuizLogic;
     } catch (e) { /* fortsett uten lagring */ }
   }
 
+  const ROUND_LENGTH = 10;
+
   const boxes = loadBoxes();
   let lastKey = null;
   let current = null;
   let selected = null;
   let phase = "choose"; // "choose" | "feedback"
+  let roundProgress = 0; // riktige svar denne runden, 0..ROUND_LENGTH
 
   const els = {
     progress: document.getElementById("progress"),
@@ -462,7 +472,7 @@ if (typeof module !== "undefined") module.exports = QuizLogic;
   function renderProgress() {
     const mastered = QuizLogic.masteredCount(VERBS, boxes);
     els.progress.textContent = mastered + " av " + VERBS.length + " verb mestret";
-    els.progressBar.style.width = (100 * mastered / VERBS.length) + "%";
+    els.progressBar.style.width = (100 * roundProgress / ROUND_LENGTH) + "%";
   }
 
   function select(index) {
@@ -488,6 +498,7 @@ if (typeof module !== "undefined") module.exports = QuizLogic;
       if (current.options[i] === current.verb) btn.classList.add("reveal-correct");
       else if (i === selected) btn.classList.add("reveal-wrong");
     });
+    if (correct) roundProgress++;
     els.footer.classList.add(correct ? "good" : "bad");
     els.feedbackTitle.textContent = correct ? "Riktig!" : "Feil!";
     els.feedbackText.textContent = correct ? "" : "Riktig svar: " + current.verb.no;
@@ -498,6 +509,10 @@ if (typeof module !== "undefined") module.exports = QuizLogic;
   }
 
   function nextQuestion() {
+    if (roundProgress >= ROUND_LENGTH) {
+      roundProgress = 0;
+      renderProgress();
+    }
     const verb = QuizLogic.pickNextVerb(VERBS, boxes, lastKey, Math.random);
     current = { verb, options: QuizLogic.buildOptions(VERBS, verb, Math.random) };
     selected = null;

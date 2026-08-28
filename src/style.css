@@ -21,6 +21,7 @@
   --reveal-correct-border: #a5ed6e;
   --reveal-wrong-bg: #ffdfe0;
   --reveal-wrong-border: #ff4b4b;
+  --purple: #ce82ff;
   --track: #e5e5e5;
 }
 @media (prefers-color-scheme: dark) {
@@ -47,6 +48,7 @@
     --reveal-correct-border: #58a700;
     --reveal-wrong-bg: #3f2022;
     --reveal-wrong-border: #ff5b5b;
+    --purple: #ce82ff;
     --track: #37464f;
   }
 }
@@ -73,6 +75,7 @@
   --reveal-correct-border: #58a700;
   --reveal-wrong-bg: #3f2022;
   --reveal-wrong-border: #ff5b5b;
+  --purple: #ce82ff;
   --track: #37464f;
 }
 body {
@@ -122,8 +125,12 @@ body {
   margin: 32px 0 8px;
   font-size: 1.6rem;
   font-weight: 900;
-  color: var(--heading);
+  color: var(--purple);
   text-wrap: balance;
+}
+.heading .star {
+  font-size: 1.3rem;
+  margin-right: 4px;
 }
 .prompt {
   font-size: 2.5rem;
