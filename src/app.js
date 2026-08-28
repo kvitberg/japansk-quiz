@@ -52,8 +52,8 @@
   }
 
   function renderProgress() {
-    const mastered = QuizLogic.masteredCount(VERBS, boxes);
-    els.progress.textContent = mastered + " av " + VERBS.length + " verb mestret";
+    const learned = VERBS.filter(v => (boxes[QuizLogic.verbKey(v)] || 0) >= 1).length;
+    els.progress.textContent = learned + " av " + VERBS.length;
     els.progressBar.style.width = (100 * roundProgress / ROUND_LENGTH) + "%";
   }
 
