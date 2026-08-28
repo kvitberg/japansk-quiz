@@ -1,0 +1,359 @@
+<meta charset="utf-8">
+<title>Japansk verbquiz</title>
+<style>
+:root {
+  --bg: #f2f4f8;
+  --card: #ffffff;
+  --text: #1c1e26;
+  --muted: #676c78;
+  --accent: #2f6fed;
+  --accent-text: #ffffff;
+  --border: #d9d9de;
+  --correct-bg: #e2f4e6;
+  --correct-border: #3a9d5d;
+  --wrong-bg: #fbe4e4;
+  --wrong-border: #cc4444;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #191a1d;
+    --card: #242629;
+    --text: #ececec;
+    --muted: #9a9aa0;
+    --accent: #6fa0ff;
+    --accent-text: #10131a;
+    --border: #3a3c40;
+    --correct-bg: #1f3a28;
+    --correct-border: #4dbb72;
+    --wrong-bg: #442325;
+    --wrong-border: #e06666;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #191a1d;
+  --card: #242629;
+  --text: #ececec;
+  --muted: #9a9aa0;
+  --accent: #6fa0ff;
+  --accent-text: #10131a;
+  --border: #3a3c40;
+  --correct-bg: #1f3a28;
+  --correct-border: #4dbb72;
+  --wrong-bg: #442325;
+  --wrong-border: #e06666;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 32px;
+}
+.progress-text {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.progress-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+.prompt {
+  font-size: 2.7rem;
+  line-height: 1.2;
+  text-align: center;
+  margin: 56px 0 40px;
+}
+.prompt ruby rt {
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.options {
+  display: grid;
+  gap: 10px;
+}
+.option {
+  padding: 14px 16px;
+  font-size: 1.05rem;
+  font-family: inherit;
+  text-align: left;
+  color: var(--text);
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.option:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+.option.correct {
+  background: var(--correct-bg);
+  border-color: var(--correct-border);
+  opacity: 1;
+}
+.option.wrong {
+  background: var(--wrong-bg);
+  border-color: var(--wrong-border);
+  opacity: 1;
+}
+#next {
+  margin-top: 20px;
+  width: 100%;
+  padding: 14px;
+  font-size: 1.05rem;
+  font-family: inherit;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-text);
+  cursor: pointer;
+}
+</style>
+<main class="app">
+  <header class="top">
+    <div id="progress" class="progress-text"></div>
+    <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
+  </header>
+  <section class="card">
+    <div id="prompt" class="prompt" lang="ja"></div>
+    <div id="options" class="options"></div>
+    <button id="next" type="button" hidden>Neste</button>
+  </section>
+</main>
+<script>
+const VERBS = [
+  { kanji: "食べます", kana: "たべます", no: "å spise" },
+  { kanji: "飲みます", kana: "のみます", no: "å drikke" },
+  { kanji: "行きます", kana: "いきます", no: "å dra (til et sted)" },
+  { kanji: "来ます", kana: "きます", no: "å komme" },
+  { kanji: "帰ります", kana: "かえります", no: "å dra hjem" },
+  { kanji: "見ます", kana: "みます", no: "å se" },
+  { kanji: "聞きます", kana: "ききます", no: "å høre / lytte" },
+  { kanji: "読みます", kana: "よみます", no: "å lese" },
+  { kanji: "書きます", kana: "かきます", no: "å skrive" },
+  { kanji: "話します", kana: "はなします", no: "å snakke" },
+  { kanji: "言います", kana: "いいます", no: "å si" },
+  { kanji: "買います", kana: "かいます", no: "å kjøpe" },
+  { kanji: "会います", kana: "あいます", no: "å møte" },
+  { kanji: "待ちます", kana: "まちます", no: "å vente" },
+  { kanji: "立ちます", kana: "たちます", no: "å reise seg / stå" },
+  { kanji: "座ります", kana: "すわります", no: "å sette seg" },
+  { kanji: "起きます", kana: "おきます", no: "å våkne / stå opp" },
+  { kanji: "寝ます", kana: "ねます", no: "å sove / legge seg" },
+  { kanji: "働きます", kana: "はたらきます", no: "å jobbe" },
+  { kanji: "休みます", kana: "やすみます", no: "å hvile / ta fri" },
+  { kanji: "作ります", kana: "つくります", no: "å lage" },
+  { kanji: "使います", kana: "つかいます", no: "å bruke" },
+  { kanji: "開けます", kana: "あけます", no: "å åpne" },
+  { kanji: "閉めます", kana: "しめます", no: "å lukke" },
+  { kanji: "入ります", kana: "はいります", no: "å gå inn" },
+  { kanji: "出ます", kana: "でます", no: "å gå ut" },
+  { kanji: "泳ぎます", kana: "およぎます", no: "å svømme" },
+  { kanji: "走ります", kana: "はしります", no: "å løpe" },
+  { kanji: "歩きます", kana: "あるきます", no: "å gå (til fots)" },
+  { kanji: "教えます", kana: "おしえます", no: "å undervise / lære bort" },
+  { kanji: "習います", kana: "ならいます", no: "å lære (av noen)" },
+  { kanji: "勉強します", kana: "べんきょうします", no: "å studere" },
+  { kanji: "料理します", kana: "りょうりします", no: "å lage mat" },
+  { kanji: "掃除します", kana: "そうじします", no: "å gjøre rent" },
+  { kanji: "洗濯します", kana: "せんたくします", no: "å vaske klær" },
+  { kanji: "買い物します", kana: "かいものします", no: "å handle" },
+  { kanji: "電話します", kana: "でんわします", no: "å ringe" },
+  { kanji: "運転します", kana: "うんてんします", no: "å kjøre (bil)" },
+  { kanji: "旅行します", kana: "りょこうします", no: "å reise (på tur)" },
+  { kanji: "散歩します", kana: "さんぽします", no: "å gå tur" },
+  { kanji: null, kana: "します", no: "å gjøre" },
+  { kanji: null, kana: "あります", no: "å finnes (ting)" },
+  { kanji: null, kana: "います", no: "å være (levende vesener)" },
+  { kanji: "着ます", kana: "きます", no: "å ha på seg (overdel)" },
+  { kanji: null, kana: "はきます", no: "å ha på seg (bukse/sko)" },
+  { kanji: null, kana: "かぶります", no: "å ha på seg (hodeplagg)" },
+  { kanji: "脱ぎます", kana: "ぬぎます", no: "å ta av seg (klær)" },
+  { kanji: "住みます", kana: "すみます", no: "å bo" },
+  { kanji: "思います", kana: "おもいます", no: "å synes / tro" },
+  { kanji: "泣きます", kana: "なきます", no: "å gråte" },
+  { kanji: "笑います", kana: "わらいます", no: "å le" },
+  { kanji: "歌います", kana: "うたいます", no: "å synge" },
+  { kanji: "踊ります", kana: "おどります", no: "å danse" },
+  { kanji: "遊びます", kana: "あそびます", no: "å leke / ha det gøy" },
+  { kanji: "泊まります", kana: "とまります", no: "å overnatte" },
+  { kanji: "乗ります", kana: "のります", no: "å gå på (transport)" },
+  { kanji: "降ります", kana: "おります", no: "å gå av (transport)" },
+  { kanji: "渡ります", kana: "わたります", no: "å krysse (gate/bro)" },
+  { kanji: "曲がります", kana: "まがります", no: "å svinge" },
+  { kanji: "止まります", kana: "とまります", no: "å stoppe" },
+  { kanji: "送ります", kana: "おくります", no: "å sende" },
+  { kanji: null, kana: "もらいます", no: "å få / motta" },
+  { kanji: null, kana: "あげます", no: "å gi (bort)" },
+  { kanji: null, kana: "くれます", no: "å gi (til meg)" },
+  { kanji: "借ります", kana: "かります", no: "å låne (av noen)" },
+  { kanji: "貸します", kana: "かします", no: "å låne bort" },
+  { kanji: "返します", kana: "かえします", no: "å levere tilbake" },
+  { kanji: "忘れます", kana: "わすれます", no: "å glemme" },
+  { kanji: "覚えます", kana: "おぼえます", no: "å huske / lære utenat" },
+  { kanji: "始まります", kana: "はじまります", no: "å begynne" },
+  { kanji: "終わります", kana: "おわります", no: "å slutte / bli ferdig" },
+  { kanji: "分かります", kana: "わかります", no: "å forstå" },
+  { kanji: "撮ります", kana: "とります", no: "å ta (bilde)" },
+  { kanji: "消します", kana: "けします", no: "å slå av / slette" },
+  { kanji: null, kana: "つけます", no: "å slå på" },
+  { kanji: "急ぎます", kana: "いそぎます", no: "å skynde seg" },
+  { kanji: "手伝います", kana: "てつだいます", no: "å hjelpe" },
+];
+if (typeof module !== "undefined") module.exports = VERBS;
+</script>
+<script>
+const QuizLogic = (function () {
+  const BOX_WEIGHTS = [16, 8, 4, 2, 1];
+  const MAX_BOX = 4;
+  const MASTERED_BOX = 3;
+
+  function verbKey(verb) {
+    return (verb.kanji || "") + "|" + verb.kana;
+  }
+
+  function updateBox(box, correct) {
+    return correct ? Math.min(box + 1, MAX_BOX) : 0;
+  }
+
+  function pickNextVerb(verbs, boxes, lastKey, rng) {
+    const candidates = verbs.filter(v => verbKey(v) !== lastKey);
+    const pool = candidates.length > 0 ? candidates : verbs;
+    const weights = pool.map(v => BOX_WEIGHTS[boxes[verbKey(v)] || 0]);
+    let r = rng() * weights.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < pool.length; i++) {
+      r -= weights[i];
+      if (r < 0) return pool[i];
+    }
+    return pool[pool.length - 1];
+  }
+
+  function shuffle(arr, rng) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildOptions(verbs, target, rng) {
+    const others = verbs.filter(v => verbKey(v) !== verbKey(target));
+    const distractors = shuffle(others, rng).slice(0, 3);
+    return shuffle([target, ...distractors], rng);
+  }
+
+  function masteredCount(verbs, boxes) {
+    return verbs.filter(v => (boxes[verbKey(v)] || 0) >= MASTERED_BOX).length;
+  }
+
+  return { verbKey, updateBox, pickNextVerb, shuffle, buildOptions, masteredCount, BOX_WEIGHTS, MAX_BOX, MASTERED_BOX };
+})();
+if (typeof module !== "undefined") module.exports = QuizLogic;
+</script>
+<script>
+(function () {
+  const STORAGE_KEY = "japansk-verbquiz-v1";
+
+  function loadBoxes() {
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      return data && typeof data === "object" ? data : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveBoxes(boxes) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(boxes));
+    } catch (e) { /* fortsett uten lagring */ }
+  }
+
+  const boxes = loadBoxes();
+  let lastKey = null;
+  let current = null;
+  let answered = false;
+
+  const els = {
+    progress: document.getElementById("progress"),
+    progressBar: document.getElementById("progress-bar"),
+    prompt: document.getElementById("prompt"),
+    options: document.getElementById("options"),
+    next: document.getElementById("next"),
+  };
+
+  function renderPrompt(verb) {
+    els.prompt.textContent = "";
+    if (verb.kanji) {
+      const ruby = document.createElement("ruby");
+      ruby.appendChild(document.createTextNode(verb.kanji));
+      const rt = document.createElement("rt");
+      rt.textContent = verb.kana;
+      ruby.appendChild(rt);
+      els.prompt.appendChild(ruby);
+    } else {
+      els.prompt.textContent = verb.kana;
+    }
+  }
+
+  function renderProgress() {
+    const mastered = QuizLogic.masteredCount(VERBS, boxes);
+    els.progress.textContent = mastered + " av " + VERBS.length + " verb mestret";
+    els.progressBar.style.width = (100 * mastered / VERBS.length) + "%";
+  }
+
+  function answer(clickedBtn, option) {
+    if (answered) return;
+    answered = true;
+    const key = QuizLogic.verbKey(current.verb);
+    const correct = option === current.verb;
+    boxes[key] = QuizLogic.updateBox(boxes[key] || 0, correct);
+    saveBoxes(boxes);
+    lastKey = key;
+    Array.from(els.options.children).forEach((btn, i) => {
+      btn.disabled = true;
+      if (current.options[i] === current.verb) btn.classList.add("correct");
+    });
+    if (!correct) clickedBtn.classList.add("wrong");
+    renderProgress();
+    els.next.hidden = false;
+    els.next.focus();
+  }
+
+  function nextQuestion() {
+    const verb = QuizLogic.pickNextVerb(VERBS, boxes, lastKey, Math.random);
+    current = { verb, options: QuizLogic.buildOptions(VERBS, verb, Math.random) };
+    answered = false;
+    renderPrompt(verb);
+    els.options.textContent = "";
+    current.options.forEach(option => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "option";
+      btn.textContent = option.no;
+      btn.addEventListener("click", () => answer(btn, option));
+      els.options.appendChild(btn);
+    });
+    els.next.hidden = true;
+  }
+
+  els.next.addEventListener("click", nextQuestion);
+  renderProgress();
+  nextQuestion();
+})();
+</script>
