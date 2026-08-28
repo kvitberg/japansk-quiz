@@ -1,5 +1,7 @@
 const fs = require("node:fs");
 let html = fs.readFileSync("index.html", "utf8");
+html = html.replace(/^<!doctype html>\n/i, "");
+html = html.replace(/<meta name="viewport"[^>]*>\n/, "");
 html = html.replace(/<link rel="stylesheet" href="([^"]+)">/g, (tag, p) =>
   p.startsWith("http") ? tag : "<style>\n" + fs.readFileSync(p, "utf8") + "</style>");
 html = html.replace(/<script src="([^"]+)"><\/script>/g, (_, p) =>
