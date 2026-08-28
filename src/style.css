@@ -21,7 +21,6 @@
   --reveal-correct-border: #a5ed6e;
   --reveal-wrong-bg: #ffdfe0;
   --reveal-wrong-border: #ff4b4b;
-  --badge: #ce82ff;
   --track: #e5e5e5;
 }
 @media (prefers-color-scheme: dark) {
@@ -48,7 +47,6 @@
     --reveal-correct-border: #58a700;
     --reveal-wrong-bg: #3f2022;
     --reveal-wrong-border: #ff5b5b;
-    --badge: #ce82ff;
     --track: #37464f;
   }
 }
@@ -75,7 +73,6 @@
   --reveal-correct-border: #58a700;
   --reveal-wrong-bg: #3f2022;
   --reveal-wrong-border: #ff5b5b;
-  --badge: #ce82ff;
   --track: #37464f;
 }
 body {
@@ -121,22 +118,8 @@ body {
   text-align: center;
   letter-spacing: 0.02em;
 }
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 24px;
-  color: var(--badge);
-  font-weight: 900;
-  font-size: 0.9rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.badge-icon {
-  font-size: 1.1rem;
-}
 .heading {
-  margin: 12px 0 8px;
+  margin: 32px 0 8px;
   font-size: 1.6rem;
   font-weight: 900;
   color: var(--heading);

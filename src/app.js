@@ -25,7 +25,6 @@
   const els = {
     progress: document.getElementById("progress"),
     progressBar: document.getElementById("progress-bar"),
-    badge: document.getElementById("badge"),
     prompt: document.getElementById("prompt"),
     options: document.getElementById("options"),
     footer: document.getElementById("footer"),
@@ -92,7 +91,6 @@
     current = { verb, options: QuizLogic.buildOptions(VERBS, verb, Math.random) };
     selected = null;
     phase = "choose";
-    els.badge.hidden = QuizLogic.verbKey(verb) in boxes;
     renderPrompt(verb);
     els.options.textContent = "";
     current.options.forEach((option, i) => {
