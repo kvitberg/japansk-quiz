@@ -1,17 +1,26 @@
 <meta charset="utf-8">
 <title>Japansk verbquiz</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap">
 <link rel="stylesheet" href="src/style.css">
 <main class="app">
   <header class="top">
-    <div id="progress" class="progress-text"></div>
     <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
+    <div id="progress" class="progress-text"></div>
   </header>
-  <section class="card">
-    <div id="prompt" class="prompt" lang="ja"></div>
-    <div id="options" class="options"></div>
-    <button id="next" type="button" hidden>Neste</button>
-  </section>
+  <div id="badge" class="badge" hidden><span class="badge-icon">✦</span> Nytt ord</div>
+  <h1 class="heading">Velg riktig betydning</h1>
+  <div id="prompt" class="prompt" lang="ja"></div>
+  <div id="options" class="options"></div>
 </main>
+<footer id="footer" class="footer">
+  <div class="footer-inner">
+    <div id="feedback" class="feedback" hidden>
+      <div id="feedback-title" class="feedback-title"></div>
+      <div id="feedback-text" class="feedback-text"></div>
+    </div>
+    <button id="action" type="button" disabled>Sjekk</button>
+  </div>
+</footer>
 <script src="src/verbs.js"></script>
 <script src="src/logic.js"></script>
 <script src="src/app.js"></script>
