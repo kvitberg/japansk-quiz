@@ -52,8 +52,7 @@
   }
 
   function renderProgress() {
-    const learned = VERBS.filter(v => (boxes[QuizLogic.verbKey(v)] || 0) >= 1).length;
-    els.progress.textContent = learned + " av " + VERBS.length;
+    els.progress.textContent = roundProgress + " av " + ROUND_LENGTH;
     els.progressBar.style.width = (100 * roundProgress / ROUND_LENGTH) + "%";
   }
 
