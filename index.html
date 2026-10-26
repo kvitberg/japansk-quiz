@@ -1,11 +1,15 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Japansk verbquiz</title>
+<title>Japansk quiz</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap">
 <link rel="stylesheet" href="src/style.css">
 <main class="app">
   <header class="top">
+    <div class="tabs" role="tablist">
+      <button id="tab-verbs" class="tab" type="button" role="tab">Verb</button>
+      <button id="tab-words" class="tab" type="button" role="tab">Gloser</button>
+    </div>
     <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
     <div id="progress" class="progress-text"></div>
   </header>
@@ -23,5 +27,6 @@
   </div>
 </footer>
 <script src="src/verbs.js"></script>
+<script src="src/words.js"></script>
 <script src="src/logic.js"></script>
 <script src="src/app.js"></script>
