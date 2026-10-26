@@ -22,6 +22,7 @@
   --reveal-wrong-bg: #ffdfe0;
   --reveal-wrong-border: #ff4b4b;
   --purple: #ce82ff;
+  --purple-soft: #f7ecff;
   --track: #e5e5e5;
 }
 @media (prefers-color-scheme: dark) {
@@ -49,6 +50,7 @@
     --reveal-wrong-bg: #3f2022;
     --reveal-wrong-border: #ff5b5b;
     --purple: #ce82ff;
+    --purple-soft: #2b1c3a;
     --track: #37464f;
   }
 }
@@ -76,6 +78,7 @@
   --reveal-wrong-bg: #3f2022;
   --reveal-wrong-border: #ff5b5b;
   --purple: #ce82ff;
+  --purple-soft: #2b1c3a;
   --track: #37464f;
 }
 body {
@@ -89,6 +92,34 @@ body {
   max-width: 520px;
   margin: 0 auto;
   padding: 20px 16px 150px;
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.tab {
+  flex: 1;
+  padding: 10px 8px;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--muted);
+  background: transparent;
+  border: 2px solid var(--card-border);
+  border-bottom-width: 4px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.tab[aria-selected="true"] {
+  color: var(--purple);
+  background: var(--purple-soft);
+  border-color: var(--purple);
+}
+.tab:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  margin-bottom: 2px;
 }
 .progress-track {
   height: 14px;

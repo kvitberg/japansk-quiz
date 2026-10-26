@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>Japansk verbquiz</title>
+<title>Japansk quiz</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap">
 <style>
 :root {
@@ -26,6 +26,7 @@
   --reveal-wrong-bg: #ffdfe0;
   --reveal-wrong-border: #ff4b4b;
   --purple: #ce82ff;
+  --purple-soft: #f7ecff;
   --track: #e5e5e5;
 }
 @media (prefers-color-scheme: dark) {
@@ -53,6 +54,7 @@
     --reveal-wrong-bg: #3f2022;
     --reveal-wrong-border: #ff5b5b;
     --purple: #ce82ff;
+    --purple-soft: #2b1c3a;
     --track: #37464f;
   }
 }
@@ -80,6 +82,7 @@
   --reveal-wrong-bg: #3f2022;
   --reveal-wrong-border: #ff5b5b;
   --purple: #ce82ff;
+  --purple-soft: #2b1c3a;
   --track: #37464f;
 }
 body {
@@ -93,6 +96,34 @@ body {
   max-width: 520px;
   margin: 0 auto;
   padding: 20px 16px 150px;
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.tab {
+  flex: 1;
+  padding: 10px 8px;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--muted);
+  background: transparent;
+  border: 2px solid var(--card-border);
+  border-bottom-width: 4px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.tab[aria-selected="true"] {
+  color: var(--purple);
+  background: var(--purple-soft);
+  border-color: var(--purple);
+}
+.tab:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  margin-bottom: 2px;
 }
 .progress-track {
   height: 14px;
@@ -268,6 +299,10 @@ body {
 </style>
 <main class="app">
   <header class="top">
+    <div class="tabs" role="tablist">
+      <button id="tab-verbs" class="tab" type="button" role="tab">Verb</button>
+      <button id="tab-words" class="tab" type="button" role="tab">Gloser</button>
+    </div>
     <div class="progress-track"><div id="progress-bar" class="progress-fill"></div></div>
     <div id="progress" class="progress-text"></div>
   </header>
@@ -367,6 +402,144 @@ const VERBS = [
 if (typeof module !== "undefined") module.exports = VERBS;
 </script>
 <script>
+const WORDS = [
+  // Mat og drikke
+  { kanji: null, kana: "すし", no: "sushi" },
+  { kanji: "水", kana: "みず", no: "vann" },
+  { kanji: "お茶", kana: "おちゃ", no: "te" },
+  { kanji: null, kana: "コーヒー", no: "kaffe" },
+  { kanji: null, kana: "パン", no: "brød" },
+  { kanji: "ご飯", kana: "ごはん", no: "ris (kokt)" },
+  { kanji: "肉", kana: "にく", no: "kjøtt" },
+  { kanji: "魚", kana: "さかな", no: "fisk" },
+  { kanji: "卵", kana: "たまご", no: "egg" },
+  { kanji: "野菜", kana: "やさい", no: "grønnsaker" },
+  { kanji: "果物", kana: "くだもの", no: "frukt" },
+  { kanji: null, kana: "りんご", no: "eple" },
+  { kanji: null, kana: "ラーメン", no: "ramen" },
+  { kanji: null, kana: "ケーキ", no: "kake" },
+  { kanji: "牛乳", kana: "ぎゅうにゅう", no: "melk" },
+  { kanji: null, kana: "ビール", no: "øl" },
+  { kanji: null, kana: "ワイン", no: "vin" },
+  { kanji: null, kana: "そば", no: "soba-nudler" },
+  { kanji: null, kana: "うどん", no: "udon-nudler" },
+  { kanji: "天ぷら", kana: "てんぷら", no: "tempura" },
+  { kanji: "朝ご飯", kana: "あさごはん", no: "frokost" },
+  { kanji: "昼ご飯", kana: "ひるごはん", no: "lunsj" },
+  { kanji: "晩ご飯", kana: "ばんごはん", no: "middag" },
+  { kanji: "箸", kana: "はし", no: "spisepinner" },
+
+  // Mennesker og familie
+  { kanji: "私", kana: "わたし", no: "jeg" },
+  { kanji: "人", kana: "ひと", no: "person" },
+  { kanji: "男", kana: "おとこ", no: "mann" },
+  { kanji: "女", kana: "おんな", no: "kvinne" },
+  { kanji: "子供", kana: "こども", no: "barn" },
+  { kanji: "学生", kana: "がくせい", no: "student" },
+  { kanji: "先生", kana: "せんせい", no: "lærer" },
+  { kanji: "医者", kana: "いしゃ", no: "lege" },
+  { kanji: "友達", kana: "ともだち", no: "venn" },
+  { kanji: "家族", kana: "かぞく", no: "familie" },
+  { kanji: "お母さん", kana: "おかあさん", no: "mor" },
+  { kanji: "お父さん", kana: "おとうさん", no: "far" },
+  { kanji: "兄", kana: "あに", no: "storebror" },
+  { kanji: "姉", kana: "あね", no: "storesøster" },
+  { kanji: "弟", kana: "おとうと", no: "lillebror" },
+  { kanji: "妹", kana: "いもうと", no: "lillesøster" },
+  { kanji: null, kana: "おじいさん", no: "bestefar" },
+  { kanji: null, kana: "おばあさん", no: "bestemor" },
+  { kanji: "名前", kana: "なまえ", no: "navn" },
+
+  // Steder
+  { kanji: "家", kana: "いえ", no: "hus" },
+  { kanji: "学校", kana: "がっこう", no: "skole" },
+  { kanji: "大学", kana: "だいがく", no: "universitet" },
+  { kanji: "駅", kana: "えき", no: "togstasjon" },
+  { kanji: "店", kana: "みせ", no: "butikk" },
+  { kanji: "銀行", kana: "ぎんこう", no: "bank" },
+  { kanji: "病院", kana: "びょういん", no: "sykehus" },
+  { kanji: "図書館", kana: "としょかん", no: "bibliotek" },
+  { kanji: "公園", kana: "こうえん", no: "park" },
+  { kanji: null, kana: "レストラン", no: "restaurant" },
+  { kanji: null, kana: "ホテル", no: "hotell" },
+  { kanji: "会社", kana: "かいしゃ", no: "firma" },
+  { kanji: "部屋", kana: "へや", no: "rom" },
+  { kanji: "町", kana: "まち", no: "by" },
+  { kanji: "国", kana: "くに", no: "land" },
+  { kanji: "日本", kana: "にほん", no: "Japan" },
+  { kanji: null, kana: "アメリカ", no: "USA" },
+
+  // Tid
+  { kanji: "今日", kana: "きょう", no: "i dag" },
+  { kanji: "明日", kana: "あした", no: "i morgen" },
+  { kanji: "昨日", kana: "きのう", no: "i går" },
+  { kanji: "朝", kana: "あさ", no: "morgen" },
+  { kanji: "夜", kana: "よる", no: "natt" },
+  { kanji: "今", kana: "いま", no: "nå" },
+  { kanji: "毎日", kana: "まいにち", no: "hver dag" },
+  { kanji: "週末", kana: "しゅうまつ", no: "helg" },
+  { kanji: "時間", kana: "じかん", no: "tid" },
+  { kanji: "月曜日", kana: "げつようび", no: "mandag" },
+  { kanji: "火曜日", kana: "かようび", no: "tirsdag" },
+  { kanji: "水曜日", kana: "すいようび", no: "onsdag" },
+  { kanji: "木曜日", kana: "もくようび", no: "torsdag" },
+  { kanji: "金曜日", kana: "きんようび", no: "fredag" },
+  { kanji: "土曜日", kana: "どようび", no: "lørdag" },
+  { kanji: "日曜日", kana: "にちようび", no: "søndag" },
+
+  // Ting
+  { kanji: "本", kana: "ほん", no: "bok" },
+  { kanji: "車", kana: "くるま", no: "bil" },
+  { kanji: "電車", kana: "でんしゃ", no: "tog" },
+  { kanji: null, kana: "バス", no: "buss" },
+  { kanji: "自転車", kana: "じてんしゃ", no: "sykkel" },
+  { kanji: "電話", kana: "でんわ", no: "telefon" },
+  { kanji: null, kana: "かばん", no: "veske" },
+  { kanji: "時計", kana: "とけい", no: "klokke" },
+  { kanji: "靴", kana: "くつ", no: "sko" },
+  { kanji: "服", kana: "ふく", no: "klær" },
+  { kanji: "傘", kana: "かさ", no: "paraply" },
+  { kanji: "机", kana: "つくえ", no: "skrivebord" },
+  { kanji: "椅子", kana: "いす", no: "stol" },
+  { kanji: null, kana: "テレビ", no: "TV" },
+  { kanji: null, kana: "パソコン", no: "datamaskin" },
+  { kanji: "鍵", kana: "かぎ", no: "nøkkel" },
+  { kanji: "お金", kana: "おかね", no: "penger" },
+  { kanji: "新聞", kana: "しんぶん", no: "avis" },
+  { kanji: "手紙", kana: "てがみ", no: "brev" },
+  { kanji: "写真", kana: "しゃしん", no: "fotografi" },
+  { kanji: "猫", kana: "ねこ", no: "katt" },
+  { kanji: "犬", kana: "いぬ", no: "hund" },
+
+  // Adjektiv
+  { kanji: "大きい", kana: "おおきい", no: "stor" },
+  { kanji: "小さい", kana: "ちいさい", no: "liten" },
+  { kanji: "高い", kana: "たかい", no: "dyr" },
+  { kanji: "安い", kana: "やすい", no: "billig" },
+  { kanji: "新しい", kana: "あたらしい", no: "ny" },
+  { kanji: "古い", kana: "ふるい", no: "gammel (om ting)" },
+  { kanji: null, kana: "いい", no: "bra" },
+  { kanji: "悪い", kana: "わるい", no: "dårlig" },
+  { kanji: null, kana: "おいしい", no: "god (om mat)" },
+  { kanji: "楽しい", kana: "たのしい", no: "morsom" },
+  { kanji: "難しい", kana: "むずかしい", no: "vanskelig" },
+  { kanji: "簡単", kana: "かんたん", no: "enkel" },
+  { kanji: "暑い", kana: "あつい", no: "varm (om vær)" },
+  { kanji: "寒い", kana: "さむい", no: "kald (om vær)" },
+  { kanji: "忙しい", kana: "いそがしい", no: "travel" },
+  { kanji: "元気", kana: "げんき", no: "opplagt" },
+  { kanji: "静か", kana: "しずか", no: "stille" },
+  { kanji: null, kana: "きれい", no: "pen" },
+  { kanji: "有名", kana: "ゆうめい", no: "berømt" },
+  { kanji: "好き", kana: "すき", no: "glad i" },
+
+  // Språk
+  { kanji: "日本語", kana: "にほんご", no: "japansk (språk)" },
+  { kanji: "英語", kana: "えいご", no: "engelsk (språk)" },
+];
+if (typeof module !== "undefined") module.exports = WORDS;
+</script>
+<script>
 const QuizLogic = (function () {
   const BOX_WEIGHTS = [16, 8, 4, 2, 1];
   const MAX_BOX = 4;
@@ -417,26 +590,41 @@ if (typeof module !== "undefined") module.exports = QuizLogic;
 </script>
 <script>
 (function () {
-  const STORAGE_KEY = "japansk-verbquiz-v1";
+  const ROUND_LENGTH = 10;
+  const MODE_KEY = "japansk-quiz-mode";
 
-  function loadBoxes() {
+  const MODES = {
+    verbs: { items: VERBS, storageKey: "japansk-verbquiz-v1" },
+    words: { items: WORDS, storageKey: "japansk-gloser-v1" },
+  };
+
+  function read(key) {
     try {
-      const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      const data = JSON.parse(localStorage.getItem(key));
       return data && typeof data === "object" ? data : {};
     } catch (e) {
       return {};
     }
   }
 
-  function saveBoxes(boxes) {
+  function write(key, value) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(boxes));
+      localStorage.setItem(key, JSON.stringify(value));
     } catch (e) { /* fortsett uten lagring */ }
   }
 
-  const ROUND_LENGTH = 10;
+  function loadMode() {
+    try {
+      const saved = localStorage.getItem(MODE_KEY);
+      return Object.prototype.hasOwnProperty.call(MODES, saved) ? saved : "verbs";
+    } catch (e) {
+      return "verbs";
+    }
+  }
 
-  const boxes = loadBoxes();
+  let mode = loadMode();
+  let items = MODES[mode].items;
+  let boxes = read(MODES[mode].storageKey);
   let lastKey = null;
   let current = null;
   let selected = null;
@@ -444,6 +632,7 @@ if (typeof module !== "undefined") module.exports = QuizLogic;
   let roundProgress = 0; // riktige svar denne runden, 0..ROUND_LENGTH
 
   const els = {
+    tabs: { verbs: document.getElementById("tab-verbs"), words: document.getElementById("tab-words") },
     progress: document.getElementById("progress"),
     progressBar: document.getElementById("progress-bar"),
     prompt: document.getElementById("prompt"),
@@ -455,17 +644,23 @@ if (typeof module !== "undefined") module.exports = QuizLogic;
     action: document.getElementById("action"),
   };
 
-  function renderPrompt(verb) {
+  function renderTabs() {
+    Object.keys(MODES).forEach(name => {
+      els.tabs[name].setAttribute("aria-selected", String(name === mode));
+    });
+  }
+
+  function renderPrompt(item) {
     els.prompt.textContent = "";
-    if (verb.kanji) {
+    if (item.kanji) {
       const ruby = document.createElement("ruby");
-      ruby.appendChild(document.createTextNode(verb.kanji));
+      ruby.appendChild(document.createTextNode(item.kanji));
       const rt = document.createElement("rt");
-      rt.textContent = verb.kana;
+      rt.textContent = item.kana;
       ruby.appendChild(rt);
       els.prompt.appendChild(ruby);
     } else {
-      els.prompt.textContent = verb.kana;
+      els.prompt.textContent = item.kana;
     }
   }
 
@@ -486,21 +681,21 @@ if (typeof module !== "undefined") module.exports = QuizLogic;
   function check() {
     if (selected === null) return;
     phase = "feedback";
-    const key = QuizLogic.verbKey(current.verb);
-    const correct = current.options[selected] === current.verb;
+    const key = QuizLogic.verbKey(current.item);
+    const correct = current.options[selected] === current.item;
     boxes[key] = QuizLogic.updateBox(boxes[key] || 0, correct);
-    saveBoxes(boxes);
+    write(MODES[mode].storageKey, boxes);
     lastKey = key;
     Array.from(els.options.children).forEach((btn, i) => {
       btn.disabled = true;
       btn.classList.remove("selected");
-      if (current.options[i] === current.verb) btn.classList.add("reveal-correct");
+      if (current.options[i] === current.item) btn.classList.add("reveal-correct");
       else if (i === selected) btn.classList.add("reveal-wrong");
     });
     if (correct) roundProgress++;
     els.footer.classList.add(correct ? "good" : "bad");
     els.feedbackTitle.textContent = correct ? "Riktig!" : "Feil!";
-    els.feedbackText.textContent = correct ? "" : "Riktig svar: " + current.verb.no;
+    els.feedbackText.textContent = correct ? "" : "Riktig svar: " + current.item.no;
     els.feedbackText.hidden = correct;
     els.feedback.hidden = false;
     els.action.textContent = "Fortsett";
@@ -512,11 +707,11 @@ if (typeof module !== "undefined") module.exports = QuizLogic;
       roundProgress = 0;
       renderProgress();
     }
-    const verb = QuizLogic.pickNextVerb(VERBS, boxes, lastKey, Math.random);
-    current = { verb, options: QuizLogic.buildOptions(VERBS, verb, Math.random) };
+    const item = QuizLogic.pickNextVerb(items, boxes, lastKey, Math.random);
+    current = { item, options: QuizLogic.buildOptions(items, item, Math.random) };
     selected = null;
     phase = "choose";
-    renderPrompt(verb);
+    renderPrompt(item);
     els.options.textContent = "";
     current.options.forEach((option, i) => {
       const btn = document.createElement("button");
@@ -532,10 +727,30 @@ if (typeof module !== "undefined") module.exports = QuizLogic;
     els.action.disabled = true;
   }
 
+  function switchMode(name) {
+    if (name === mode) return;
+    mode = name;
+    items = MODES[mode].items;
+    boxes = read(MODES[mode].storageKey);
+    lastKey = null;
+    roundProgress = 0;
+    try {
+      localStorage.setItem(MODE_KEY, mode);
+    } catch (e) { /* fortsett uten lagring */ }
+    renderTabs();
+    renderProgress();
+    nextQuestion();
+  }
+
+  Object.keys(MODES).forEach(name => {
+    els.tabs[name].addEventListener("click", () => switchMode(name));
+  });
   els.action.addEventListener("click", () => {
     if (phase === "choose") check();
     else nextQuestion();
   });
+
+  renderTabs();
   renderProgress();
   nextQuestion();
 })();
